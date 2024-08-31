@@ -1,0 +1,40 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>WebSocket Time</title>
+</head>
+<body>
+    <h1>Current Time</h1>
+    <p id="time">Connecting...</p>
+
+    <script>
+        // Buat koneksi WebSocket
+        const socket = new WebSocket("ws://localhost:3000/ws");
+
+        // Saat menerima pesan dari server
+        socket.onmessage = function(event) {
+            document.getElementById("time").innerText = event.data;
+        };
+
+        // Saat koneksi WebSocket ditutup
+        socket.onclose = function(event) {
+            // reconnect
+            setTimeout(() => {
+                const socket = new WebSocket("ws://localhost:3000/ws");
+            }, 1000);
+            document.getElementById("time").innerText = "Connection closed";
+        
+        };
+
+        // Saat terjadi error pada WebSocket
+        socket.onerror = function(error) {
+            document.getElementById("time").innerText = "Error: " + error.message;
+        };
+
+
+
+    </script>
+</body>
+</html>
