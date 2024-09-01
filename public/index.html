@@ -10,31 +10,34 @@
     <p id="time">Connecting...</p>
 
     <script>
-        // Buat koneksi WebSocket
-        const socket = new WebSocket("ws://localhost:3000/ws");
+        let retryCount = 0;
+        const maxRetries = 30;
 
-        // Saat menerima pesan dari server
-        socket.onmessage = function(event) {
-            document.getElementById("time").innerText = event.data;
-        };
+        function connectWebSocket() {
+            const socket = new WebSocket("ws://localhost:3000/ws");
 
-        // Saat koneksi WebSocket ditutup
-        socket.onclose = function(event) {
-            // reconnect
-            setTimeout(() => {
-                const socket = new WebSocket("ws://localhost:3000/ws");
-            }, 1000);
-            document.getElementById("time").innerText = "Connection closed";
-        
-        };
+            socket.onmessage = function(event) {
+                document.getElementById("time").innerText = event.data;
+                retryCount = 0; // Reset retryCount jika koneksi berhasil
+            };
 
-        // Saat terjadi error pada WebSocket
-        socket.onerror = function(error) {
-            document.getElementById("time").innerText = "Error: " + error.message;
-        };
+            socket.onclose = function(event) {
+                if (retryCount < maxRetries) {
+                    retryCount++;
+                    document.getElementById("time").innerText = `Connection closed. Retrying in 1 second... (Attempt ${retryCount}/${maxRetries})`;
+                    setTimeout(connectWebSocket, 1000); 
+                } else {
+                    document.getElementById("time").innerText = "Connection closed. Maximum retries reached.";
+                }
+            };
 
+            socket.onerror = function(error) {
+                document.getElementById("time").innerText = "Error: " + error.message;
+            };
+        }
 
-
+        // Panggil fungsi untuk memulai koneksi
+        connectWebSocket(); 
     </script>
 </body>
 </html>
