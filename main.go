@@ -67,7 +67,7 @@ func main() {
 	// Serve file HTML di root
 	app.Static("/", "./public")
 
-	log.Fatal(app.Listen(":3000"))
+	log.Fatal(app.Listen(":3002"))
 }
 
 func timeSender() {
